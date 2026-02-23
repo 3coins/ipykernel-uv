@@ -1,6 +1,6 @@
 [build-system]
 requires = ["hatchling"]
-build-backend = "hatchling.backends"
+build-backend = "hatchling.build"
 
 [project]
 name = "ipykernel-uv"
@@ -11,6 +11,7 @@ license = "BSD-3-Clause"
 requires-python = ">=3.10"
 dependencies = [
     "jupyter_client>=7.0",
+    "jupyterlab>=4.5.5",
 ]
 
 [tool.hatch.build.targets.wheel]
