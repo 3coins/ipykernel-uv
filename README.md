@@ -9,12 +9,14 @@ that environment — no manual virtual environment management required.
 
 1. You select the **Python (uv)** kernel in JupyterLab
 2. The kernel finds the nearest `pyproject.toml` by walking up from the notebook's directory
-3. It runs `uv run --project <dir> --with ipykernel python -m ipykernel_launcher`
-4. uv syncs the project's environment and starts IPython inside it
+3. If it can't find one, it creates ones in the notebook's directory
+3. If `ipykernel` is not already in the project's dependencies, it adds it via `uv add`
+4. It runs `uv run --project <dir> python -m ipykernel_launcher`
+5. uv syncs the project's environment and starts IPython inside it
 
 This means your notebook automatically has access to all the dependencies declared in your
-project's `pyproject.toml`. The `ipykernel` package is injected automatically, so you don't
-need to add it to your project's dependencies.
+project's `pyproject.toml`. The `ipykernel` package is added to your project's dependencies
+automatically if not already present.
 
 ## Requirements
 
@@ -50,10 +52,13 @@ python -m ipykernel_uv install --prefix /path/to/prefix
 
 ## Usage
 
-1. Make sure your project has a `pyproject.toml` with its dependencies listed
+1. Setup: `pyproject.toml` 
+   - Make sure your project/directory has a `pyproject.toml` with its dependencies listed.
+   - Or, if it can't find a nearby `pyproject.toml` one will be created.
 2. Open JupyterLab and create or open a notebook in your project directory
 3. Select the **Python (uv)** kernel from the kernel picker
 4. Your notebook now runs inside your project's uv-managed environment
+5. You can add new package using `!uv add <project>` inside a notebook cell.
 
 ## Install options
 
