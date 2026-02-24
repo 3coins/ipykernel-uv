@@ -1,7 +1,9 @@
 """Find the nearest uv project and exec into ipykernel via uv run."""
 
 import os
+import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -32,18 +34,29 @@ def launch_kernel(args: list[str]) -> None:
 
     pyproject = find_pyproject_toml()
     if pyproject is None:
-        print("error: no pyproject.toml found in any parent directory", file=sys.stderr)
-        sys.exit(1)
+        cwd = Path.cwd()
+        print(f"No pyproject.toml found, creating one in {cwd}", file=sys.stderr)
+        subprocess.run([uv, "init", ".", "--bare"], check=True)
+        pyproject = cwd / "pyproject.toml"
 
     project_dir = str(pyproject.parent)
+
+    # Clear environment variables from the parent (JupyterLab) environment
+    # so uv cleanly manages its own project environment.
+    for var in ("VIRTUAL_ENV", "CONDA_PREFIX", "CONDA_DEFAULT_ENV"):
+        os.environ.pop(var, None)
+
+    # Ensure ipykernel is declared as a dependency in the project
+    if not _has_ipykernel_dependency(pyproject):
+        subprocess.run(
+            [uv, "add", "--project", project_dir, "ipykernel"], check=True
+        )
 
     cmd = [
         uv,
         "run",
         "--project",
         project_dir,
-        "--with",
-        "ipykernel",
         "python",
         "-m",
         "ipykernel_launcher",
@@ -51,3 +64,19 @@ def launch_kernel(args: list[str]) -> None:
     ]
 
     os.execvp(cmd[0], cmd)
+
+
+def _has_ipykernel_dependency(pyproject: Path) -> bool:
+    """Check if ipykernel is already listed in the project's dependencies."""
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib
+
+    with open(pyproject, "rb") as f:
+        data = tomllib.load(f)
+
+    deps = data.get("project", {}).get("dependencies", [])
+    return any(
+        re.split(r"[><=!\[;~\s]", dep.strip())[0] == "ipykernel" for dep in deps
+    )
