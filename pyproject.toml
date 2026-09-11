@@ -26,3 +26,6 @@ path = "src/ipykernel_uv/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ipykernel_uv"]
+
+[tool.jupyter-releaser.options]
+version_cmd = "hatch version"
