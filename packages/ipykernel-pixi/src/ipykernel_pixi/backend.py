@@ -2,8 +2,9 @@
 
 A pixi project is marked by either a ``pixi.toml`` or a ``pyproject.toml`` that
 carries a ``[tool.pixi]`` table (the "pixi directive" pixi auto-detects). When
-no manifest exists, a ``pyproject.toml`` is created via ``pixi init
---format pyproject`` so the flow mirrors the uv backend.
+no manifest exists, a bare ``pixi.toml`` is created via ``pixi init
+--format pixi`` -- the analog of ``uv init --bare``, with no source-package
+scaffold or editable self-install.
 """
 
 from __future__ import annotations
@@ -63,15 +64,19 @@ class PixiBackend:
 
     def init_project(self, directory: Path) -> Path:
         pixi = self.check_available()
-        # --format pyproject writes a [tool.pixi.workspace] table (channels +
-        # current platform) into a pyproject.toml, which pixi then auto-detects.
-        # If a plain pyproject.toml already exists, pixi augments it in place.
+        # --format pixi writes a bare pixi.toml ([workspace] with channels +
+        # current platform, plus empty [tasks]/[dependencies]). Unlike
+        # --format pyproject it does NOT scaffold a src/<name> package, a
+        # [build-system], or an editable self-install -- none of which a
+        # notebook environment wants. If a plain pyproject.toml already exists
+        # it is left untouched; the standalone pixi.toml coexists with it and
+        # is what this backend's find_manifest claims.
         subprocess.run(
-            [pixi, "init", ".", "--format", "pyproject"],
+            [pixi, "init", ".", "--format", "pixi"],
             cwd=directory,
             check=True,
         )
-        return directory / "pyproject.toml"
+        return directory / "pixi.toml"
 
     def ensure_ipykernel(self, manifest: Path) -> None:
         if self._has_ipykernel(manifest):
