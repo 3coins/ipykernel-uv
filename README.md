@@ -1,87 +1,67 @@
-# ipykernel-uv
+# ipykernel-env
 
-A Jupyter kernel that uses [uv](https://docs.astral.sh/uv/) to automatically manage
-Python environments for your projects. When you select this kernel, it finds the nearest
-`pyproject.toml`, syncs the project's dependencies with `uv`, and launches IPython inside
-that environment — no manual virtual environment management required.
+Jupyter kernels that automatically manage a project's environment for you. Select the
+kernel, and it finds (or creates) the project manifest, makes sure `ipykernel` is
+declared, and launches IPython inside the managed environment — no manual virtual
+environment juggling.
 
-## How it works
+This is a monorepo with a shared core and one package per environment manager:
 
-1. You select the **Python (uv)** kernel in JupyterLab
-2. The kernel finds the nearest `pyproject.toml` by walking up from the notebook's directory
-3. If it can't find one, it creates ones in the notebook's directory
-3. If `ipykernel` is not already in the project's dependencies, it adds it via `uv add`
-4. It runs `uv run --project <dir> python -m ipykernel_launcher`
-5. uv syncs the project's environment and starts IPython inside it
+| Package | Manager | Kernel | Dist |
+|---|---|---|---|
+| [`packages/ipykernel-env-core`](packages/ipykernel-env-core) | — | — | `ipykernel-env-core` |
+| [`packages/ipykernel-uv`](packages/ipykernel-uv) | [uv](https://docs.astral.sh/uv/) | Python (uv) | `ipykernel-uv` |
+| [`packages/ipykernel-pixi`](packages/ipykernel-pixi) | [pixi](https://pixi.prefix.dev/) | Python (pixi) | `ipykernel-pixi` |
 
-This means your notebook automatically has access to all the dependencies declared in your
-project's `pyproject.toml`. The `ipykernel` package is added to your project's dependencies
-automatically if not already present.
-
-## Requirements
-
-- Python >= 3.10
-- [uv](https://docs.astral.sh/uv/) installed and available on PATH
-
-## Installation
-
-Install the package:
+Install whichever backend you want — each pulls in `ipykernel-env-core`:
 
 ```bash
-pip install ipykernel-uv
-```
-
-Or with uv:
-
-```bash
-uv pip install ipykernel-uv
-```
-
-Then register the kernel spec. Choose one of the following options:
-
-```bash
-# Install for the current user
+pip install ipykernel-uv      # Python (uv) kernel
+pip install ipykernel-pixi    # Python (pixi) kernel
 python -m ipykernel_uv install --user
-
-# Install into the current virtual environment
-python -m ipykernel_uv install --sys-prefix
-
-# Install into a specific prefix
-python -m ipykernel_uv install --prefix /path/to/prefix
+python -m ipykernel_pixi install --user
 ```
 
-## Usage
+See each package's README for details.
 
-1. Setup: `pyproject.toml` 
-   - Make sure your project/directory has a `pyproject.toml` with its dependencies listed.
-   - Or, if it can't find a nearby `pyproject.toml` one will be created.
-2. Open JupyterLab and create or open a notebook in your project directory
-3. Select the **Python (uv)** kernel from the kernel picker
-4. Your notebook now runs inside your project's uv-managed environment
-5. You can add new package using `!uv add <project>` inside a notebook cell.
+## Architecture
 
-## Install options
+`ipykernel-env-core` defines a small `Backend` protocol and the backend-agnostic
+launch/install flow:
 
-| Flag | Description |
-|------|-------------|
-| `--name` | Kernel name (default: `python3-uv`) |
-| `--display-name` | Display name in Jupyter (default: `Python (uv)`) |
-| `--user` | Install for the current user |
-| `--sys-prefix` | Install into `sys.prefix` (e.g. the active virtual environment) |
-| `--prefix` | Install into a specific prefix directory |
+```
+find manifest (or init) -> clear inherited venv vars -> ensure ipykernel -> exec kernel
+```
+
+Each backend supplies the manager-specific pieces (manifest discovery, `init`, `add`,
+`run`). The uv and pixi backends mirror each other:
+
+| Step | uv | pixi |
+|---|---|---|
+| Manifest | `pyproject.toml` | `pixi.toml` or `pyproject.toml` with `[tool.pixi]` |
+| Init if missing | `uv init --bare` | `pixi init --format pyproject` |
+| Ensure ipykernel | `uv add ipykernel` | `pixi add ipykernel` |
+| Launch | `uv run --project <dir> python -m ipykernel_launcher` | `pixi run --manifest-path <manifest> python -m ipykernel_launcher` |
+| In-notebook add | `!uv add <pkg>` | `!pixi add <pkg>` |
+
+Adding another manager is a new package implementing `Backend` — no change to the core
+flow.
 
 ## Development
 
-```bash
-# Clone the repo
-git clone https://github.com/jupyter-ai-contrib/ipykernel-uv.git
-cd ipykernel-uv
+This repo is a [uv workspace](https://docs.astral.sh/uv/concepts/workspaces/).
 
-# Sync the development environment
+```bash
+# Clone
+git clone https://github.com/jupyter-ai-contrib/ipykernel-env.git
+cd ipykernel-env
+
+# Sync all workspace packages into one dev environment
 uv sync
 
-# Install the kernel spec locally
+# Install a kernel spec locally
 uv run python -m ipykernel_uv install --sys-prefix
+uv run python -m ipykernel_pixi install --sys-prefix
 ```
 
 ## License
