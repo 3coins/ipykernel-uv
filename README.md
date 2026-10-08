@@ -1,65 +1,84 @@
 # ipykernel-env
 
-Jupyter kernels that automatically manage a project's environment for you. Select the
-kernel, and it finds (or creates) the project manifest, makes sure `ipykernel` is
-declared, and launches IPython inside the managed environment — no manual virtual
-environment juggling.
+Jupyter kernels that manage your project's environment for you.
 
-This is a monorepo with a shared core and one package per environment manager:
+Pick the kernel and start writing code. There is no virtual environment to create
+first, no `ipykernel` to remember to install, no "which Python is this notebook
+even using" — the kernel finds your project, makes sure the environment exists and
+has what it needs, and launches IPython inside it. Add a package from a notebook
+cell and it lands in that same project environment, declared in the manifest and
+ready on the next cell.
 
-| Package | Manager | Kernel | Dist |
-|---|---|---|---|
-| [`packages/ipykernel-env-core`](packages/ipykernel-env-core) | — | — | `ipykernel-env-core` |
-| [`packages/ipykernel-uv`](packages/ipykernel-uv) | [uv](https://docs.astral.sh/uv/) | Python (uv) | `ipykernel-uv` |
-| [`packages/ipykernel-pixi`](packages/ipykernel-pixi) | [pixi](https://pixi.prefix.dev/) | Python (pixi) | `ipykernel-pixi` |
+The result is a notebook that is reproducible by construction: the dependencies a
+notebook needs live in the project manifest next to it, so the next person to open
+it (or you, on another machine) gets the same environment without a setup ritual.
 
-Install whichever backend you want — each pulls in `ipykernel-env-core`:
+<!-- TODO: demo GIF -- select kernel -> environment is prepared -> !uv add / !pixi add in a cell -->
+
+## Install
+
+Install the kernel for the environment manager you use. Each one pulls in the
+shared core automatically — you do not install the core yourself.
+
+### uv
 
 ```bash
-pip install ipykernel-uv      # Python (uv) kernel
-pip install ipykernel-pixi    # Python (pixi) kernel
+pip install ipykernel-uv
 python -m ipykernel_uv install --user
+```
+
+Requires [uv](https://docs.astral.sh/uv/) on your PATH. Adds a **Python (uv)**
+kernel.
+
+### pixi
+
+```bash
+pip install ipykernel-pixi
 python -m ipykernel_pixi install --user
 ```
 
-See each package's README for details.
+Requires [pixi](https://pixi.prefix.dev/) on your PATH. Adds a **Python (pixi)**
+kernel.
 
-## Architecture
+You can install both side by side — each registers its own kernel, and a notebook
+picks whichever one matches how its project is managed.
+
+## Packages
+
+This is a monorepo: a shared core plus one thin package per environment manager.
+
+| Package | Manager | Kernel | PyPI |
+|---|---|---|---|
+| [`ipykernel-env-core`](packages/ipykernel-env-core) | — | — | `ipykernel-env-core` |
+| [`ipykernel-uv`](packages/ipykernel-uv) | [uv](https://docs.astral.sh/uv/) | Python (uv) | `ipykernel-uv` |
+| [`ipykernel-pixi`](packages/ipykernel-pixi) | [pixi](https://pixi.prefix.dev/) | Python (pixi) | `ipykernel-pixi` |
 
 `ipykernel-env-core` defines a small `Backend` protocol and the backend-agnostic
-launch/install flow:
+flow every kernel runs:
 
 ```
-find manifest (or init) -> clear inherited venv vars -> ensure ipykernel -> exec kernel
+find the project manifest (or create one) -> ensure ipykernel is declared -> launch the kernel inside the managed environment
 ```
 
-Each backend supplies the manager-specific pieces (manifest discovery, `init`, `add`,
-`run`). The uv and pixi backends mirror each other:
-
-| Step | uv | pixi |
-|---|---|---|
-| Manifest | `pyproject.toml` | `pixi.toml` or `pyproject.toml` with `[tool.pixi]` |
-| Init if missing | `uv init --bare` | `pixi init --format pyproject` |
-| Ensure ipykernel | `uv add ipykernel` | `pixi add ipykernel` |
-| Launch | `uv run --project <dir> python -m ipykernel_launcher` | `pixi run --manifest-path <manifest> python -m ipykernel_launcher` |
-| In-notebook add | `!uv add <pkg>` | `!pixi add <pkg>` |
-
-Adding another manager is a new package implementing `Backend` — no change to the core
-flow.
+Each backend fills in the manager-specific pieces — how it discovers a manifest,
+how it initializes a project, how it adds a dependency, how it runs the kernel.
+Adding support for another environment manager is a new package implementing
+`Backend`; the core flow does not change. See each package's README for the
+backend's specifics.
 
 ## Development
 
-This repo is a [uv workspace](https://docs.astral.sh/uv/concepts/workspaces/).
+This repo is a [uv workspace](https://docs.astral.sh/uv/concepts/workspaces/) for
+local development.
 
 ```bash
-# Clone
 git clone https://github.com/jupyter-ai-contrib/ipykernel-env.git
 cd ipykernel-env
 
-# Sync all workspace packages into one dev environment
+# Sync all three packages into one editable dev environment
 uv sync
 
-# Install a kernel spec locally
+# Register the kernels locally
 uv run python -m ipykernel_uv install --sys-prefix
 uv run python -m ipykernel_pixi install --sys-prefix
 ```

@@ -13,8 +13,8 @@ built on [`ipykernel-env-core`](../ipykernel-env-core).
 1. You select the **Python (pixi)** kernel in JupyterLab
 2. The kernel finds the nearest pixi manifest by walking up from the notebook's directory —
    a `pixi.toml`, or a `pyproject.toml` carrying a `[tool.pixi]` table
-3. If it can't find one, it creates a `pyproject.toml` via `pixi init --format pyproject`
-   (which pixi auto-detects via the `[tool.pixi.workspace]` table)
+3. If it can't find one, it creates a bare `pixi.toml` in the notebook's directory
+   via `pixi init --format pixi` (no source-package scaffold, no build-system)
 4. If `ipykernel` is not already declared, it adds it via `pixi add ipykernel`
 5. It runs `pixi run --manifest-path <manifest> python -m ipykernel_launcher`
 6. pixi syncs the project's environment and starts IPython inside it
@@ -52,6 +52,12 @@ python -m ipykernel_pixi install --prefix /path/to/prefix
 4. Your notebook now runs inside your project's pixi-managed environment.
 5. Add new packages with `!pixi add <package>` (conda-forge) or `!pixi add --pypi <package>`
    inside a notebook cell.
+
+> **Adding dependencies:** use `!pixi add` (or edit the pixi manifest), not a plain
+> `pyproject.toml`. pixi only reads dependencies from a manifest that carries its own
+> marker — a `pixi.toml`, or a `pyproject.toml` with a `[tool.pixi]` table. Packages
+> listed in a plain `[project.dependencies]` of a pyproject *without* that marker are
+> not seen by pixi. (This differs from the uv kernel, which adopts any `pyproject.toml`.)
 
 ## Install options
 
