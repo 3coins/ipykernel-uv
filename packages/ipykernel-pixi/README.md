@@ -33,11 +33,11 @@ pip install ipykernel-pixi
 Then register the kernel spec:
 
 ```bash
+# Install into the current virtual environment (recommended)
+python -m ipykernel_pixi install --sys-prefix
+
 # Install for the current user
 python -m ipykernel_pixi install --user
-
-# Install into the current virtual environment
-python -m ipykernel_pixi install --sys-prefix
 
 # Install into a specific prefix
 python -m ipykernel_pixi install --prefix /path/to/prefix

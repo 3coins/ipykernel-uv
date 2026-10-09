@@ -24,7 +24,7 @@ shared core automatically — you do not install the core yourself.
 
 ```bash
 pip install ipykernel-uv
-python -m ipykernel_uv install --user
+python -m ipykernel_uv install --sys-prefix
 ```
 
 Requires [uv](https://docs.astral.sh/uv/) on your PATH. Adds a **Python (uv)**
@@ -34,7 +34,7 @@ kernel.
 
 ```bash
 pip install ipykernel-pixi
-python -m ipykernel_pixi install --user
+python -m ipykernel_pixi install --sys-prefix
 ```
 
 Requires [pixi](https://pixi.prefix.dev/) on your PATH. Adds a **Python (pixi)**

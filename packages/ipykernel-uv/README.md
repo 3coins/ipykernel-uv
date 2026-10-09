@@ -31,11 +31,11 @@ pip install ipykernel-uv
 Then register the kernel spec:
 
 ```bash
+# Install into the current virtual environment (recommended)
+python -m ipykernel_uv install --sys-prefix
+
 # Install for the current user
 python -m ipykernel_uv install --user
-
-# Install into the current virtual environment
-python -m ipykernel_uv install --sys-prefix
 
 # Install into a specific prefix
 python -m ipykernel_uv install --prefix /path/to/prefix
