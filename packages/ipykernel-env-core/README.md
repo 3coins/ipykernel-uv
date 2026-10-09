@@ -24,7 +24,7 @@ A manager package wires it up in its `__main__`:
 
 ```python
 from ipykernel_env_core import launch_kernel, install_main
-from .backend import MyEnvManager
+from .envmanager import MyEnvManager
 
 manager = MyEnvManager()
 # install path: install_main(argv, module="ipykernel_mine", ...)

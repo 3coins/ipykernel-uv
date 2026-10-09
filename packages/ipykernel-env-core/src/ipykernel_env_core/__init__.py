@@ -6,7 +6,7 @@ create) a project manifest, make sure ``ipykernel`` is declared, and exec into
 ``ipykernel_launcher`` inside the project's managed environment.
 """
 
-from .backend import EnvManager
+from .envmanager import EnvManager
 from .install import install, install_main
 from .launcher import launch_kernel
 

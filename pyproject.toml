@@ -1,7 +1,7 @@
 # Workspace root for the ipykernel-env monorepo.
 #
 # This is a uv workspace used only for local development: it wires the three
-# packages together so an editable install of a backend resolves the local
+# packages together so an editable install of a manager resolves the local
 # `ipykernel-env-core`. It is not a published distribution.
 
 [tool.uv.workspace]

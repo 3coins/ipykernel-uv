@@ -4,7 +4,7 @@ import sys
 
 from ipykernel_env_core import install_main, launch_kernel
 
-from .backend import PixiEnvManager
+from .envmanager import PixiEnvManager
 
 
 def main() -> None:

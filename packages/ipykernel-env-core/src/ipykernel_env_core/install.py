@@ -1,8 +1,8 @@
 """Shared Jupyter kernelspec installation.
 
-Each backend package calls :func:`install_main` with its own module name,
+Each manager package calls :func:`install_main` with its own module name,
 default kernel name, and default display name. The kernelspec's ``argv`` runs
-``python -m <module>`` so the right backend handles the launch.
+``python -m <module>`` so the right environment manager handles the launch.
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def install_main(
     default_name: str,
     default_display_name: str,
 ) -> None:
-    """Parse CLI args and install the kernelspec for a backend."""
+    """Parse CLI args and install the kernelspec for an environment manager."""
     parser = argparse.ArgumentParser(
         prog=f"python -m {module} install",
         description=f"Install the {module} kernel spec",

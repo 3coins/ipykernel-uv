@@ -17,7 +17,7 @@ import os
 import sys
 from pathlib import Path
 
-from .backend import EnvManager
+from .envmanager import EnvManager
 
 # Variables from the launching (JupyterLab) environment that would otherwise
 # leak into and confuse the manager-owned environment.

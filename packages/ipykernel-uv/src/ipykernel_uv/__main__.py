@@ -4,7 +4,7 @@ import sys
 
 from ipykernel_env_core import install_main, launch_kernel
 
-from .backend import UvEnvManager
+from .envmanager import UvEnvManager
 
 
 def main() -> None:

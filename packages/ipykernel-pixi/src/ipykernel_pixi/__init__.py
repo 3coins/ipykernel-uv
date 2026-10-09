@@ -1,6 +1,6 @@
 """An IPython kernel that uses pixi for package and environment management."""
 
-from .backend import PixiEnvManager
+from .envmanager import PixiEnvManager
 
 __version__ = "0.1.0"
 
