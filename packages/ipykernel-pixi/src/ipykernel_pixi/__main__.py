@@ -4,7 +4,7 @@ import sys
 
 from ipykernel_env_core import install_main, launch_kernel
 
-from .backend import PixiBackend
+from .backend import PixiEnvManager
 
 
 def main() -> None:
@@ -16,7 +16,7 @@ def main() -> None:
             default_display_name="Python (pixi)",
         )
     else:
-        launch_kernel(PixiBackend(), sys.argv[1:])
+        launch_kernel(PixiEnvManager(), sys.argv[1:])
 
 
 if __name__ == "__main__":

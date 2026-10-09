@@ -53,18 +53,18 @@ This is a monorepo: a shared core plus one thin package per environment manager.
 | [`ipykernel-uv`](packages/ipykernel-uv) | [uv](https://docs.astral.sh/uv/) | Python (uv) | `ipykernel-uv` |
 | [`ipykernel-pixi`](packages/ipykernel-pixi) | [pixi](https://pixi.prefix.dev/) | Python (pixi) | `ipykernel-pixi` |
 
-`ipykernel-env-core` defines a small `Backend` protocol and the backend-agnostic
-flow every kernel runs:
+`ipykernel-env-core` defines a small `EnvManager` protocol and the
+manager-agnostic flow every kernel runs:
 
 ```
 find the project manifest (or create one) -> ensure ipykernel is declared -> launch the kernel inside the managed environment
 ```
 
-Each backend fills in the manager-specific pieces — how it discovers a manifest,
+Each manager fills in the specific pieces — how it discovers a manifest,
 how it initializes a project, how it adds a dependency, how it runs the kernel.
 Adding support for another environment manager is a new package implementing
-`Backend`; the core flow does not change. See each package's README for the
-backend's specifics.
+`EnvManager`; the core flow does not change. See each package's README for the
+manager's specifics.
 
 ## Development
 

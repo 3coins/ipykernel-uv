@@ -1,12 +1,12 @@
-"""The backend abstraction.
+"""The environment-manager abstraction.
 
-A backend adapts one environment manager (uv, pixi, ...) to the kernel. The
-launcher is backend-agnostic: it finds or creates a manifest, ensures
-``ipykernel`` is declared, then execs into the kernel inside the managed
-environment. Each backend supplies the manager-specific command strings.
+An :class:`EnvManager` adapts one environment manager (uv, pixi, ...) to the
+kernel. The launcher is manager-agnostic: it finds or creates a manifest,
+ensures ``ipykernel`` is declared, then execs into the kernel inside the managed
+environment. Each implementation supplies the manager-specific command strings.
 
-To add a new backend, implement this protocol and expose it from a thin package
-whose ``__main__`` calls :func:`ipykernel_env_core.launch_kernel` /
+To add support for a new manager, implement this protocol and expose it from a
+thin package whose ``__main__`` calls :func:`ipykernel_env_core.launch_kernel` /
 :func:`ipykernel_env_core.install_main` with an instance.
 """
 
@@ -17,7 +17,7 @@ from typing import NoReturn, Protocol, runtime_checkable
 
 
 @runtime_checkable
-class Backend(Protocol):
+class EnvManager(Protocol):
     """One environment manager, adapted to the kernel launch/install flow."""
 
     #: Short identifier, e.g. ``"uv"`` or ``"pixi"``.
@@ -37,7 +37,7 @@ class Backend(Protocol):
     def find_manifest(self, start: Path) -> Path | None:
         """Walk up from ``start`` and return the project manifest, or ``None``.
 
-        "Manifest" is whatever marks a project this backend owns (for uv, a
+        "Manifest" is whatever marks a project this manager owns (for uv, a
         ``pyproject.toml``; for pixi, a ``pixi.toml`` or a ``pyproject.toml``
         carrying a ``[tool.pixi]`` table).
         """

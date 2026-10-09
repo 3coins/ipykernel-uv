@@ -4,7 +4,7 @@ import sys
 
 from ipykernel_env_core import install_main, launch_kernel
 
-from .backend import UvBackend
+from .backend import UvEnvManager
 
 
 def main() -> None:
@@ -16,7 +16,7 @@ def main() -> None:
             default_display_name="Python (uv)",
         )
     else:
-        launch_kernel(UvBackend(), sys.argv[1:])
+        launch_kernel(UvEnvManager(), sys.argv[1:])
 
 
 if __name__ == "__main__":

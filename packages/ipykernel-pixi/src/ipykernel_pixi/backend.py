@@ -1,4 +1,4 @@
-"""pixi backend: manage the environment with ``pixi``.
+"""pixi environment manager: manage the environment with ``pixi``.
 
 A pixi project is marked by either a ``pixi.toml`` or a ``pyproject.toml`` that
 carries a ``[tool.pixi]`` table (the "pixi directive" pixi auto-detects). When
@@ -29,7 +29,7 @@ def _is_pixi_pyproject(pyproject: Path) -> bool:
     return "pixi" in data.get("tool", {})
 
 
-class PixiBackend:
+class PixiEnvManager:
     """Adapts pixi to the kernel: pixi manifest + ``pixi run``."""
 
     name = "pixi"
@@ -70,7 +70,7 @@ class PixiBackend:
         # [build-system], or an editable self-install -- none of which a
         # notebook environment wants. If a plain pyproject.toml already exists
         # it is left untouched; the standalone pixi.toml coexists with it and
-        # is what this backend's find_manifest claims.
+        # is what this manager's find_manifest claims.
         subprocess.run(
             [pixi, "init", ".", "--format", "pixi"],
             cwd=directory,

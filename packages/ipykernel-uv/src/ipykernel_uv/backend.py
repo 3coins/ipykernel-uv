@@ -1,4 +1,4 @@
-"""uv backend: manage the environment with ``uv`` and a ``pyproject.toml``."""
+"""uv environment manager: manage the environment with ``uv`` and a ``pyproject.toml``."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import NoReturn
 from ipykernel_env_core.manifest import has_project_dependency, walk_up_for
 
 
-class UvBackend:
+class UvEnvManager:
     """Adapts uv to the kernel: nearest ``pyproject.toml`` + ``uv run``."""
 
     name = "uv"

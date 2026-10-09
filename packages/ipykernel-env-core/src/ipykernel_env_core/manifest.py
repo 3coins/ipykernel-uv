@@ -1,4 +1,4 @@
-"""Manifest discovery and inspection helpers shared across backends."""
+"""Manifest discovery and inspection helpers shared across environment managers."""
 
 from __future__ import annotations
 
